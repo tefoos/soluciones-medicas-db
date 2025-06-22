@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mysql:
+    build: .
+    container_name: db_soluciones_medicas
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: db_soluciones_medicas
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin123
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts:/docker-entrypoint-initdb.d
+    networks:
+      - db-network
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --init-connect=SET NAMES utf8mb4
+
+  adminer:
+    image: adminer:4.8.1
+    container_name: adminer_soluciones_medicas
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - db-network
+    depends_on:
+      - mysql
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  db-network:
+    driver: bridge

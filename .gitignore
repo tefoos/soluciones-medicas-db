@@ -1,0 +1,20 @@
+logs/
+*.log
+
+# Backup files
+backup/
+*.sql.backup
+*.dump
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
