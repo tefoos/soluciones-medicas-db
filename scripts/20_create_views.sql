@@ -1,6 +1,6 @@
 -- ============================================
 -- VISTAS PRINCIPALES DEL NEGOCIO
--- Archivo: 21_create_views.sql
+-- Archivo: 20_create_views.sql
 -- ============================================
 
 CREATE VIEW v_productos_proximos_vencer AS
@@ -105,3 +105,17 @@ FROM Producto p
 INNER JOIN Proveedor pr ON p.ID_Proveedor = pr.ID_Proveedor
 WHERE p.Stock_Actual <= p.Stock_Minimo
 ORDER BY (p.Stock_Minimo - p.Stock_Actual) DESC, p.Categoria;
+
+CREATE VIEW v_facturacion_periodo AS
+SELECT
+    YEAR(f.Fecha_Emision) AS Anio,
+    MONTH(f.Fecha_Emision) AS Mes,
+    COUNT(*) AS Total_Facturas,
+    SUM(f.Total) AS Valor_Facturado,
+    SUM(CASE WHEN f.Estado = 'Pagada' THEN f.Total ELSE 0 END) AS Valor_Cobrado,
+    SUM(CASE WHEN f.Estado = 'Vencida' THEN f.Total ELSE 0 END) AS Valor_Vencido,
+    ROUND((SUM(CASE WHEN f.Estado = 'Pagada' THEN f.Total ELSE 0 END) / SUM(f.Total)) * 100, 2) AS Porcentaje_Cobrado
+FROM Factura f
+WHERE f.Fecha_Emision >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
+GROUP BY YEAR(f.Fecha_Emision), MONTH(f.Fecha_Emision)
+ORDER BY Anio DESC, Mes DESC;
